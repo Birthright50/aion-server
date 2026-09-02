@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import com.aionemu.gameserver.dataholders.DataManager;
 import com.aionemu.gameserver.model.enchants.EnchantEffect;
 import com.aionemu.gameserver.model.gameobjects.Creature;
-import com.aionemu.gameserver.model.gameobjects.Item;
 import com.aionemu.gameserver.model.gameobjects.VisibleObject;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
 import com.aionemu.gameserver.model.stats.calc.Stat2;
 import com.aionemu.gameserver.model.stats.calc.StatOwner;
 import com.aionemu.gameserver.model.stats.calc.functions.*;
 import com.aionemu.gameserver.model.stats.container.StatEnum;
+import com.aionemu.gameserver.model.templates.L10n;
 import com.aionemu.gameserver.model.templates.stats.ModifiersTemplate;
 import com.aionemu.gameserver.network.aion.serverpackets.SM_SYSTEM_MESSAGE;
 import com.aionemu.gameserver.skillengine.model.Effect;
@@ -138,7 +138,7 @@ public class Stat extends AdminCommand {
 			return;
 		applyStatFunction(target, new CommandStatFunction(stat, value));
 		String targetInfo = admin.equals(target) ? "Your " : target.getName() + "'s ";
-		sendInfo(admin, targetInfo + stat.name().toLowerCase() + " is now set to " + value + ".");
+		sendInfo(admin, targetInfo + ChatUtil.color(stat.name(), Color.WHITE) + " is now set to " + value + ".");
 	}
 
 	private void applyStatFunction(Creature creature, StatFunction statFunction) {
@@ -207,11 +207,11 @@ public class Stat extends AdminCommand {
 			info += ", type: " + type;
 			info += ", owner: " + (owner == null ? "none" : owner.getClass().getSimpleName());
 			if (owner instanceof Effect effect)
-				info += " (skill ID " + effect.getSkillId() + ": " + effect.getSkillName() + ")";
-			else if (owner instanceof Item item)
-				info += " (" + item.getName() + ")";
+				info += " (skill ID " + effect.getSkillId() + ": " + effect.getSkillTemplate().getL10n() + ")";
 			else if (owner instanceof EnchantEffect enchantEffect && enchantEffect.getItemSlot() != null)
 				info += " (" + enchantEffect.getItemSlot() + ")";
+			else if (owner instanceof L10n l10n)
+				info += " (" + l10n.getL10n() + ")";
 			return info;
 		}
 
