@@ -83,17 +83,10 @@ public class ChatUtil {
 	}
 
 	/**
-	 * @see #name(String)
+	 * @return A clickable character name for system {@link ChatType chat types}.<br>
 	 */
-	public static String name(Player player) {
-		return name(player.getName(true));
-	}
-
-	/**
-	 * @return A clickable (for system {@link ChatType}s) character name.<br>
-	 */
-	public static String name(String name) {
-		return String.format("[charname:%s;1 1 1]", name); // the 3 parameters are color values, but client doesn't render them anyways
+	public static String charName(Player player) {
+		return String.format("[charname:%s;1 1 1]", player.getName(true)); // the 3 parameters are color values, but the client doesn't render them
 	}
 
 	/**

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import com.aionemu.gameserver.model.animations.TeleportAnimation;
@@ -31,18 +30,14 @@ import com.aionemu.gameserver.world.WorldMapType;
 public class HouseCommand extends AdminCommand {
 
 	public HouseCommand() {
-		super("house", "House teleport and ownership management.");
-
-		// @formatter:off
-		setSyntaxInfo(
-			"list - Shows all maps with houses.",
-			"list <map> - Shows all house addresses for the given map.",
-			"tp <address> - Teleports you to the house with the given address.",
-			"own <address> - Gives ownership of given house to your target.",
-			"revoke <address> - Revokes ownership of given house.",
-			"reloadscripts <address> - Reloads all scripts for the given house."
-		);
-		// @formatter:on
+		super("house", "House teleport and ownership management.", """
+			list - Shows all maps with houses.
+			list <map> - Shows all house addresses for the given map.
+			tp <address> - Teleports you to the house with the given address.
+			own <address> - Gives ownership of given house to your target.
+			revoke <address> - Revokes ownership of given house.
+			reloadscripts <address> - Reloads all scripts for the given house.
+			""");
 	}
 
 	@Override
@@ -54,7 +49,7 @@ public class HouseCommand extends AdminCommand {
 
 		House house = null;
 		if (params.length >= 2) {
-			int address = NumberUtils.toInt(params[1]);
+			int address = Integer.parseInt(params[1]);
 			house = HousingService.getInstance().getHouseByAddress(address);
 		}
 		if (house == null && !"list".equalsIgnoreCase(params[0])) {
@@ -138,18 +133,18 @@ public class HouseCommand extends AdminCommand {
 		}
 
 		if (house.getOwnerId() == target.getObjectId()) {
-			sendInfo(admin, target.getName() + " already owns that house.");
+			sendInfo(admin, name(target) + " already owns that house.");
 			return;
 		}
 		if (target.getHouses().size() >= 2) {
-			sendInfo(admin, target.getName() + " must sell his old house which is currently in grace time first!");
+			sendInfo(admin, name(target) + " must sell his old house which is currently in grace time first!");
 			return;
 		}
 		House studio = HousingService.getInstance().getPlayerStudio(target.getObjectId());
 		if (studio != null)
 			HousingService.getInstance().changeOwner(studio, 0);
 		HousingService.getInstance().changeOwner(house, target.getObjectId());
-		sendInfo(admin, "House " + house.getName() + " is now owned by " + target.getName());
+		sendInfo(admin, "House " + house.getName() + " is now owned by " + name(target));
 	}
 
 	private void revokeOwnership(Player admin, House house) {

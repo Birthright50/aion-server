@@ -11,14 +11,10 @@ import com.aionemu.gameserver.world.WorldMapType;
 public class VortexRaid extends AdminCommand {
 
 	public VortexRaid() {
-		super("vortexraid", "Starts/stops a raid in Theobomos or Brusthonin.");
-
-		// @formatter:off
-		setSyntaxInfo(
-			"start <Theobomos|Brusthonin> - Starts the raid at the given location.",
-			"stop <Theobomos|Brusthonin> - Stops the raid at the given location."
-		);
-		// @formatter:on
+		super("vortexraid", "Starts/stops a raid in Theobomos or Brusthonin.", """
+			start <Theobomos|Brusthonin> - Starts the raid at the given location.
+			stop <Theobomos|Brusthonin> - Stops the raid at the given location.
+			""");
 	}
 
 	@Override

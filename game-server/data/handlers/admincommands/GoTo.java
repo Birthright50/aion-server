@@ -3,9 +3,8 @@ package admincommands;
 import static com.aionemu.gameserver.world.WorldMapType.*;
 import static java.util.stream.Collectors.*;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.*;
-import java.util.List;
 
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -27,14 +26,10 @@ public class GoTo extends AdminCommand {
 	private final Map<String, Location> locations = new LinkedHashMap<>();
 
 	public GoTo() {
-		super("goto", "Teleports you to regions by name.");
-
-		// @formatter:off
-		setSyntaxInfo(
-			" - Shows a list of locations to teleport to.",
-			"<location name> - Teleports you to the given location."
-		);
-		// @formatter:on
+		super("goto", "Teleports you to regions by name.", """
+			 - Shows a list of locations to teleport to.
+			<location name> - Teleports you to the given location.
+			""");
 		addLocations();
 	}
 

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.math.NumberUtils;
-
 import com.aionemu.gameserver.configs.main.EventsConfig;
 import com.aionemu.gameserver.dataholders.DataManager;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
@@ -23,16 +21,12 @@ import com.aionemu.gameserver.utils.chathandlers.AdminCommand;
 public class WorldRaid extends AdminCommand {
 
 	public WorldRaid() {
-		super("worldraid", "Starts/stops the Beritra Invasion event.");
-
-		// @formatter:off
-		setSyntaxInfo(
-				"list - Shows all available world raid locations",
-				"active - Shows all active world raid locations",
-				"start <location_id> - Starts the world raid for the given location",
-				"stop <location_id> - Stops the world raid for the given location"
-		);
-		// @formatter:on
+		super("worldraid", "Starts/stops the Beritra Invasion event.", """
+				list - Shows all available world raid locations.
+				active - Shows all active world raid locations.
+				start <location ID> - Starts the world raid for the given location.
+				stop <location ID> - Stops the world raid for the given location.
+				""");
 	}
 
 	@Override
@@ -51,17 +45,15 @@ public class WorldRaid extends AdminCommand {
 		} else if ("active".equalsIgnoreCase(params[0])) {
 			sendInfo(player, createLocationList(WorldRaidService.getInstance().getActiveWorldRaidLocations(), "Currently active world raids:"));
 		} else {
-			if (params.length < 2 || !NumberUtils.isNumber(params[1])) {
+			if (params.length < 2) {
 				sendInfo(player);
 				return;
 			}
-
-			int locationId = NumberUtils.toInt(params[1]);
+			int locationId = Integer.parseInt(params[1]);
 			if (!WorldRaidService.getInstance().isValidWorldRaidLocation(locationId)) {
 				sendInfo(player, "Invalid world raid location: " + locationId);
 				return;
 			}
-
 			if ("start".equalsIgnoreCase(params[0])) {
 				if (WorldRaidService.getInstance().isWorldRaidInProgress(locationId)) {
 					sendInfo(player, "World raid for location " + locationId + " is already in progress");

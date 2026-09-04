@@ -21,17 +21,13 @@ import com.aionemu.gameserver.utils.chathandlers.AdminCommand;
 public class SiegeCommand extends AdminCommand {
 
 	public SiegeCommand() {
-		super("siege", "Controls sieges and artifacts.");
-
-		// @formatter:off
-		setSyntaxInfo(
-			"locations - Shows info about all locations.",
-			"start <locationId> - Starts the siege at the given location.",
-			"stop <locationId> - Stops the siege at the given location.",
-			"capture <locationId> [elyos|asmodians|balaur|legionName|legionId] - Captures the fortress at given location.",
-			"assault <locationId> [delaySec] - Starts an assault at the given location."
-		);
-		// @formatter:on
+		super("siege", "Controls sieges and artifacts.", """
+			locations - Shows info about all locations.
+			start <location ID> - Starts the siege at the given location.
+			stop <location ID> - Stops the siege at the given location.
+			capture <location ID> [elyos|asmodians|balaur|legionName|legionId] - Captures the fortress at given location.
+			assault <location ID> [delaySec] - Starts an assault at the given location.
+			""");
 	}
 
 	@Override
@@ -90,11 +86,11 @@ public class SiegeCommand extends AdminCommand {
 		if (params.length >= 3) {
 			try {
 				sr = SiegeRace.valueOf(params[2].toUpperCase());
-			} catch (IllegalArgumentException ignored) {
+			} catch (IllegalArgumentException _) {
 				try {
 					int legionId = Integer.parseInt(params[2]);
 					legion = LegionService.getInstance().getLegion(legionId);
-				} catch (NumberFormatException e) {
+				} catch (NumberFormatException _) {
 					String legionName = "";
 					for (int i = 2; i < params.length; i++)
 						legionName += " " + params[i];
@@ -128,11 +124,11 @@ public class SiegeCommand extends AdminCommand {
 	private SiegeLocation parseLocation(String[] params) {
 		SiegeLocation location = params.length < 2 ? null : SiegeService.getInstance().getSiegeLocation(Integer.parseInt(params[1]));
 		if (location == null)
-			throw new IllegalArgumentException("Invalid locationId.");
+			throw new IllegalArgumentException("Invalid location ID.");
 		return location;
 	}
 
 	private static Object getLocationName(SiegeLocation loc) {
-		return loc.getTemplate().getL10nId() == 0 ? loc.getType().toString() + " " + loc.getLocationId() : loc.getTemplate().getL10n();
+		return loc.getTemplate().getL10n() == null ? loc.getType() + " " + loc.getLocationId() : loc.getTemplate().getL10n();
 	}
 }

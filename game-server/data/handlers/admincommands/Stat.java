@@ -29,18 +29,14 @@ import com.aionemu.gameserver.utils.stats.CalculationType;
 public class Stat extends AdminCommand {
 
 	public Stat() {
-		super("stat", "Shows and modifies any stats.");
-
-		// @formatter:off
-		setSyntaxInfo(
-			"list - Lists all stats.",
-			"<stat> - Shows your target's active stat functions for the given stat.",
-			"<stat> <value> - Sets your target's stat to the given value.",
-			"abs <stat set ID> - Applies fixed stats of the given stats_set ID from absolute_stats.xml to your target.",
-			"cancel - Cancels all active stat overrides for your target.",
-			"Stat parameters accept lowercase and abbreviated formats, such as flytime or flyt instead of FLY_TIME."
-		);
-		// @formatter:on
+		super("stat", "Shows and modifies any stats.", """
+			list - Lists all stats.
+			<stat> - Shows your target's active stat functions for the given stat.
+			<stat> <value> - Sets your target's stat to the given value.
+			abs <stat set ID> - Applies fixed stats of the given stats_set ID from absolute_stats.xml to your target.
+			cancel - Cancels all active stat overrides for your target.
+			Stat parameters accept lowercase and abbreviated formats, such as flytime or flyt instead of FLY_TIME.
+			""");
 	}
 
 	@Override
@@ -71,7 +67,7 @@ public class Stat extends AdminCommand {
 				return;
 			}
 			template.getModifiers().forEach(m -> applyStatFunction(creature, m));
-			sendInfo(admin, "Applied absolute stats to " + creature.getName() + ".");
+			sendInfo(admin, "Applied absolute stats to " + name(creature) + ".");
 		} else {
 			sendInfo(admin);
 		}
@@ -115,7 +111,7 @@ public class Stat extends AdminCommand {
 
 	private void showActiveStatFunctions(Player admin, Creature target, StatEnum stat) {
 		List<IStatFunction> stats = target.getGameStats().getStatsSorted(stat);
-		String targetInfo = admin.equals(target) ? "You currently have " : target.getName() + " currently has ";
+		String targetInfo = admin.equals(target) ? "You currently have " : name(target) + " currently has ";
 		String statName = ChatUtil.color(stat.name(), Color.WHITE);
 		if (stats.isEmpty()) {
 			sendInfo(admin, targetInfo + "no active " + statName + " functions.");
@@ -137,7 +133,7 @@ public class Stat extends AdminCommand {
 		if (stat == null)
 			return;
 		applyStatFunction(target, new CommandStatFunction(stat, value));
-		String targetInfo = admin.equals(target) ? "Your " : target.getName() + "'s ";
+		String targetInfo = admin.equals(target) ? "Your " : name(target) + "'s ";
 		sendInfo(admin, targetInfo + ChatUtil.color(stat.name(), Color.WHITE) + " is now set to " + value + ".");
 	}
 
@@ -149,7 +145,7 @@ public class Stat extends AdminCommand {
 
 	public void cancelStatOverrides(Player admin, Creature target) {
 		CommandStatOwner.forEach(owner -> target.getGameStats().endEffect(owner));
-		String targetInfo = admin.equals(target) ? "Your" : target.getName() + "'s";
+		String targetInfo = admin.equals(target) ? "Your" : name(target) + "'s";
 		sendInfo(admin, targetInfo + " stat overrides have been canceled.");
 	}
 

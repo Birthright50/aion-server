@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.aionemu.gameserver.configs.administration.CommandsConfig;
+import com.aionemu.gameserver.model.gameobjects.VisibleObject;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
+import com.aionemu.gameserver.model.templates.L10n;
 import com.aionemu.gameserver.network.aion.serverpackets.SM_MESSAGE;
 import com.aionemu.gameserver.utils.ChatUtil;
 import com.aionemu.gameserver.utils.PacketSendUtility;
@@ -22,7 +24,7 @@ public abstract class ChatCommand {
 	private final String prefix;
 	private final String alias;
 	private final String description;
-	private String syntaxInfo;
+	private final String syntaxInfo;
 
 	/**
 	 * Initializes a chat command.
@@ -33,11 +35,25 @@ public abstract class ChatCommand {
 	 *          command identifier
 	 * @param description
 	 *          short command description
+	 * @param syntaxInfo
+	 *          The command parameter info. It is used to generate the syntax info in {@link #sendInfo(Player, String...)}.<br>
+	 *          When following the parameter convention, parameters will be highlighted in white. You can pass a text block if your command supports
+	 *          multiple syntax variants.<br>
+	 *          Example:
+	 *          <pre>{@code
+	 *          """
+	 *          - Short description for no parameter.
+	 *          <param1> <param2> [optionalParam3] - Short parameter description (two mandatory parameters, third one is optional).
+	 *          param1 <param2> - Short parameter description (first one is a non-variable word).
+	 *          Some other help text.
+	 *          """
+	 *          }</pre>
 	 */
-	public ChatCommand(String prefix, String alias, String description) {
+	public ChatCommand(String prefix, String alias, String description, String syntaxInfo) {
 		this.prefix = prefix;
 		this.alias = alias;
 		this.description = description;
+		this.syntaxInfo = parseSyntaxInfo(syntaxInfo);
 	}
 
 	public final boolean run(Player player, String... params) {
@@ -81,34 +97,18 @@ public abstract class ChatCommand {
 		return prefix + alias;
 	}
 
-	/**
-	 * Sets the command parameter info.<br>
-	 * This parameter info is needed to generate the syntax info in {@link #sendInfo(Player, String...)}.<br>
-	 * You can pass multiple comma separated lines of text. When following the parameter convention, parameters will be highlighted in white.
-	 * 
-	 * @param lines
-	 *          strings may look like this:<br>
-	 *          " - Short description for no parameter.",<br>
-	 *          "&lt;param1&gt; &lt;param2&gt; [optionalParam3] - Short parameter description (two mandatory parameters, third one is optional).",<br>
-	 *          "param1 &lt;param2&gt; - Short parameter description (first one is a non-variable word).",<br>
-	 *          "Some other help text."<br>
-	 */
-	protected final void setSyntaxInfo(String... lines) {
-		this.syntaxInfo = parseSyntaxInfo(lines);
-	}
-
 	public String getSyntaxInfo() {
-		if (syntaxInfo == null) // init default info if handler did not set any syntax info
-			setSyntaxInfo();
 		return syntaxInfo;
 	}
 
-	private String parseSyntaxInfo(String... lines) {
+	private String parseSyntaxInfo(String syntaxInfo) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Syntax:");
-		if (lines.length > 0) {
+		if (syntaxInfo.isBlank()) {
+			sb.append("\n\tNo syntax info available.");
+		} else {
 			boolean containsSquareBrackets = false;
-			for (String info : lines) {
+			for (String info : syntaxInfo.split("\n")) {
 				String[] split = info.split(" - ", 2);
 				if (split.length == 2) {
 					if (!containsSquareBrackets && split[0].contains("["))
@@ -123,8 +123,6 @@ public abstract class ChatCommand {
 			}
 			if (containsSquareBrackets)
 				sb.append("\nNote: Parameters enclosed in square brackets are optional.");
-		} else {
-			sb.append("\n\tNo syntax info available.");
 		}
 		return sb.toString();
 	}
@@ -191,8 +189,7 @@ public abstract class ChatCommand {
 
 	/**
 	 * Sends an info message to the player.<br>
-	 * If no message parameter (or <tt>null</tt>) is specified, the default syntax info will be sent.<br>
-	 * You can set syntax info via {@link #setSyntaxInfo(String...)}
+	 * If no message parameter (or <tt>null</tt>) is specified, the default syntax info will be sent.
 	 * 
 	 * @param player
 	 *          player who will receive the message
@@ -260,6 +257,21 @@ public abstract class ChatCommand {
 				return splitIndex;
 		}
 		return SM_MESSAGE.MESSAGE_SIZE_LIMIT;
+	}
+
+	protected static String join(String[] params, int startIndex) {
+		return Stream.of(params).skip(startIndex).collect(Collectors.joining(" "));
+	}
+
+	/**
+	 * @return The name of the object to be displayed in chat. If the object is a player, a clickable name will be returned. Otherwise, it's a localized name if available.
+	 */
+	protected static String name(VisibleObject visibleObject) {
+		if (visibleObject instanceof Player player)
+			return ChatUtil.charName(player);
+		if (visibleObject.getObjectTemplate() instanceof L10n l10n)
+			return l10n.getL10n();
+		return visibleObject.getName();
 	}
 
 	/**
