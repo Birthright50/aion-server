@@ -175,7 +175,7 @@ public class EnchantService {
 
 		int maxEnchant = targetItem.getItemTemplate().getMaxEnchantLevel(); // max enchant level from item_templates
 		maxEnchant += targetItem.getEnchantBonus();
-		if (targetItem.getEnchantLevel() < 20) {
+		if (targetItem.getEnchantLevel() < maxEnchant) {
 			float chance = Rnd.chance(); // crit modifier
 			if (chance < 5)
 				addLevel = 3;
