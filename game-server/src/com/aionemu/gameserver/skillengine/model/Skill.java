@@ -381,8 +381,8 @@ public class Skill {
 	}
 
 	private int calculateCastDuration() {
-		if (getItemTemplate() != null)
-			return getItemTemplate().getCastingDelay();
+		if (itemTemplate != null)
+			return itemTemplate.isCombatActivated() ? baseCastDuration : itemTemplate.getCastingDelay();
 		//2nd+ time of multicast-skill activation
 		if (getMultiCastCount() > 0)
 			return 0;
