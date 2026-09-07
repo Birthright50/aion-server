@@ -42,6 +42,7 @@ public class Effect implements StatOwner {
 	private Skill skill;
 	private int skillLevel;
 	private Integer duration;
+	private volatile boolean slotReserved;
 	private long endTime;
 	private SubEffectType subEffectType = SubEffectType.NONE;
 	private Future<?> endTask = null;
@@ -549,6 +550,38 @@ public class Effect implements StatOwner {
 			effectHate += template.calculateHate(this);
 		}
 		return effectHate == 0 ? 0 : StatFunctions.calculateHate(getEffector(), effectHate);
+	}
+
+	/**
+	 * Holds this effects place in the effected creatures effect list from the moment the cast ends, so a skill with a long hit time keeps the position
+	 * it took when it was cast. While reserved the effect is invisible to packets, dispels, conflict searches and counters.
+	 */
+	public void reserveEffectSlot() {
+		Creature target = getEffected();
+		if (target == null || successEffects.isEmpty() || isPassive() || getTargetSlot() == SkillTargetSlot.NONE)
+			return;
+		slotReserved = true;
+		target.getEffectController().reserveSlot(this);
+	}
+
+	/**
+	 * Frees a reserved place which never became an effect, for example after a resist or when the target died meanwhile.
+	 */
+	public void releaseUnusedEffectSlot() {
+		if (!slotReserved)
+			return;
+		slotReserved = false;
+		Creature target = getEffected();
+		if (target != null)
+			target.getEffectController().releaseSlot(this);
+	}
+
+	public boolean isSlotReserved() {
+		return slotReserved;
+	}
+
+	public void setSlotStarted() {
+		slotReserved = false;
 	}
 
 	/**
