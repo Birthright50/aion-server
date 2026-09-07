@@ -2,6 +2,8 @@ package com.aionemu.gameserver.utils;
 
 import java.awt.Color;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -335,5 +337,70 @@ public class ChatUtil {
 		if (num.length() >= width)
 			return num;
 		return "\t".repeat(width - num.length()) + num;
+	}
+
+	/**
+	 * Splits a chat message into parts that fit within the client's 1022 character display limit.<br>
+	 * It makes a best-effort estimate to account for links and l10n identifiers, which often expand into longer rendered text on the client side.<br>
+	 * Splitting occurs at a newline or space, if present, to avoid breaking links or words.
+	 */
+	public static List<String> split(String chatMessage) {
+		if (chatMessage.length() <= SM_MESSAGE.MESSAGE_SIZE_LIMIT / 2)
+			return List.of(chatMessage);
+		List<String> parts = new ArrayList<>();
+		for (int start = 0, length = chatMessage.length(); start < length; ) {
+			int splitIndex = findSplitIndex(chatMessage, start, length);
+			parts.add(chatMessage.substring(start, splitIndex));
+			start = splitIndex;
+			if (start < length) {
+				char splitChar = chatMessage.charAt(start);
+				if (splitChar == ' ' || splitChar == '\n')
+					start++;
+			}
+		}
+		return parts;
+	}
+
+	private static int findSplitIndex(String chatMessage, int startIndex, int endIndex) {
+		int estimatedDisplayLength = 0;
+		int lastNewLineIndex = -1;
+		int lastSpaceIndex = -1;
+		for (int i = startIndex; i < endIndex; i++) {
+			int lengthToAdd = 1;
+			switch (chatMessage.charAt(i)) {
+				case '\n' -> lastNewLineIndex = i;
+				case ' ' -> lastSpaceIndex = i;
+				case '$' -> { // check for l10n ID
+					if (i + 2 < endIndex && (chatMessage.charAt(i + 1) & 1) == 1) {
+						i += 2;
+						lengthToAdd += 15; // conservative estimate for the character count of a resolved localized string on the client side
+					}
+				}
+				case '[' -> { // check for any link type, such as [quest:1006], [item:182400001], etc.
+					if (i + 3 < endIndex && Character.isLowerCase(chatMessage.charAt(i + 1))) {
+						int linkEndIndex = chatMessage.indexOf(']', i + 2, Math.min(i + 40, endIndex));
+						if (linkEndIndex == -1)
+							break;
+						int colonIndex = chatMessage.indexOf(':', i + 2, linkEndIndex);
+						if (colonIndex == -1)
+							break;
+						int linkLength = linkEndIndex - i;
+						i += linkLength;
+						lengthToAdd += 30; // conservative estimate for the character count of a rendered chat link on the client side
+					}
+				}
+			}
+			estimatedDisplayLength += lengthToAdd;
+			if (estimatedDisplayLength >= SM_MESSAGE.MESSAGE_SIZE_LIMIT) {
+				if (i == startIndex)
+					break;
+				if (lastNewLineIndex != -1)
+					return lastNewLineIndex;
+				if (lastSpaceIndex != -1)
+					return lastSpaceIndex;
+				return i;
+			}
+		}
+		return endIndex;
 	}
 }
