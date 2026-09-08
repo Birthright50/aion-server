@@ -121,18 +121,8 @@ public abstract class CreatureGameStats<T extends Creature> {
 		return applyStatFunctions(statEnum, stat, calculationTypes);
 	}
 
-	public Stat2 getStat(StatEnum statEnum, float base, float bonusRate, CalculationType... calculationTypes) {
-		Stat2 stat = new AdditionStat(statEnum, base, owner, bonusRate);
-		return applyStatFunctions(statEnum, stat, calculationTypes);
-	}
-
 	public Stat2 getReverseStat(StatEnum statEnum, float base) {
 		Stat2 stat = new ReverseStat(statEnum, base, owner);
-		return applyStatFunctions(statEnum, stat);
-	}
-
-	public Stat2 getReverseStat(StatEnum statEnum, float base, float bonusRate) {
-		Stat2 stat = new ReverseStat(statEnum, base, owner, bonusRate);
 		return applyStatFunctions(statEnum, stat);
 	}
 
