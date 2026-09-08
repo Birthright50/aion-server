@@ -8,9 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.aionemu.gameserver.configs.administration.CommandsConfig;
+import com.aionemu.gameserver.dataholders.DataManager;
 import com.aionemu.gameserver.model.gameobjects.VisibleObject;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
 import com.aionemu.gameserver.model.templates.L10n;
+import com.aionemu.gameserver.model.templates.world.WorldMapTemplate;
 import com.aionemu.gameserver.utils.ChatUtil;
 import com.aionemu.gameserver.utils.PacketSendUtility;
 
@@ -222,6 +224,16 @@ public abstract class ChatCommand {
 		if (visibleObject.getObjectTemplate() instanceof L10n l10n)
 			return l10n.getL10n();
 		return visibleObject.getName();
+	}
+
+	/**
+	 * @return The name of the world to be displayed in chat. If available, returns its localized name.
+	 */
+	protected static String worldName(int worldId) {
+		WorldMapTemplate template = DataManager.WORLD_MAPS_DATA.getTemplate(worldId);
+		if (template == null)
+			return String.valueOf(worldId);
+		return template.getL10nId() != 0 ? template.getL10n() : template.getName();
 	}
 
 	/**
