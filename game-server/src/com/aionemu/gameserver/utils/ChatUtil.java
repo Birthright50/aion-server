@@ -3,14 +3,11 @@ package com.aionemu.gameserver.utils;
 import java.awt.Color;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import com.aionemu.gameserver.configs.administration.AdminConfig;
 import com.aionemu.gameserver.dataholders.DataManager;
@@ -125,7 +122,7 @@ public class ChatUtil {
 	private static String path(VisibleObjectTemplate template, boolean withIdInName) {
 		String name = template.getL10n();
 		if (name == null)
-			name = StringUtils.capitalize(template.getName());
+			name = template.getName();
 		if (withIdInName)
 			name = name + " | " + template.getTemplateId();
 		return path(name, template.getTemplateId());
@@ -178,17 +175,17 @@ public class ChatUtil {
 		if (startIndex < 0 || startIndex >= endIndex)
 			return null;
 		String[] posStr = posLink.substring(startIndex, endIndex).trim().split("\\h+");
-		if (NumberUtils.toInt(posStr[0]) <= 1) // if present, strip ely/asmo language restriction flag (0 = ely only, 1 = asmo only)
-			posStr = ArrayUtils.subarray(posStr, 1, posStr.length);
+		if (posStr[0].equals("0") || posStr[0].equals("1")) // if present, strip ely/asmo language restriction flag (0 = ely only, 1 = asmo only)
+			posStr = Arrays.copyOfRange(posStr, 1, posStr.length);
 
 		if (posStr.length < 3)
 			return null;
 
-		int mapAndInstanceId = NumberUtils.toInt(posStr[0]);
-		float x = NumberUtils.toFloat(posStr[1]);
-		float y = NumberUtils.toFloat(posStr[2]);
-		float z = posStr.length > 3 ? NumberUtils.toFloat(posStr[3]) : 0; // client always creates position links with z = 0
-		int layer = posStr.length > 4 ? NumberUtils.toInt(posStr[4]) : 0;
+		int mapAndInstanceId = Integer.parseInt(posStr[0]);
+		float x = Float.parseFloat(posStr[1]);
+		float y = Float.parseFloat(posStr[2]);
+		float z = posStr.length > 3 ? Float.parseFloat(posStr[3]) : 0; // client always creates position links with z = 0
+		int layer = posStr.length > 4 ? Integer.parseInt(posStr[4]) : 0;
 		Integer zSearchOffset = null;
 		if (layer > 0 && z == 0 && mapAndInstanceId == 400010000) { // abyss
 			switch (layer) {
@@ -276,7 +273,7 @@ public class ChatUtil {
 
 		Matcher m = Pattern.compile("^(" + validationPattern + ")(?:[^\\d][^\\[]*\\]?$|$)").matcher(input);
 		if (m.find())
-			return NumberUtils.toInt(m.group(1));
+			return Integer.parseInt(m.group(1));
 
 		return 0;
 	}

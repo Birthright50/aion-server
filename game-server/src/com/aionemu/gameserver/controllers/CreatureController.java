@@ -1,11 +1,12 @@
 package com.aionemu.gameserver.controllers;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -296,9 +297,9 @@ public abstract class CreatureController<T extends Creature> extends VisibleObje
 		AttackTypeAnimation attackTypeAnimation = AttackTypeAnimation.MELEE;
 		List<AttackResult> attackResult;
 
-		CalculationType[] calculationTypes = new CalculationType[] { CalculationType.APPLY_POWER_SHARD_DAMAGE, CalculationType.REMOVE_POWER_SHARD };
+		Set<CalculationType> calculationTypes = EnumSet.of(CalculationType.APPLY_POWER_SHARD_DAMAGE, CalculationType.REMOVE_POWER_SHARD);
 		if (getOwner() instanceof Player p && p.getEquipment().isDualWeaponEquipped())
-			calculationTypes = ArrayUtils.add(calculationTypes, CalculationType.DUAL_WIELD);
+			calculationTypes.add(CalculationType.DUAL_WIELD);
 		if (getOwner().getAttackType() == ItemAttackType.PHYSICAL)
 			attackResult = AttackUtil.calculatePhysAttackResult(getOwner(), target, calculationTypes);
 		else {
