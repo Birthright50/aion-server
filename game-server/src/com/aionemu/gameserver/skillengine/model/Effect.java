@@ -70,6 +70,7 @@ public class Effect implements StatOwner {
 	private int mpShieldSkillId = 0;
 
 	private boolean addedToController;
+	private boolean effectListBroadcastRequested;
 	private final List<Runnable> observerRemoveTasks = new ArrayList<>();
 	private boolean launchSubEffect = true;
 	private Effect subEffect;
@@ -605,6 +606,8 @@ public class Effect implements StatOwner {
 			}
 			if (applyCriticalEffect && subEffect != null)
 				subEffect.applyEffect();
+			if (effectListBroadcastRequested && !addedToController && effected != null)
+				effected.getEffectController().broadCastEffects(null); // nothing was added to the controller, which would have broadcasted on its own
 			if (effected != null)
 				effected.getAi().onEffectApplied(this);
 		} catch (Exception e) {
@@ -790,6 +793,14 @@ public class Effect implements StatOwner {
 
 	public ItemTemplate getItemTemplate() {
 		return skill == null ? null : skill.getItemTemplate();
+	}
+
+	/**
+	 * Makes this effect broadcast the effect list of the effected creature once all its templates were applied, for templates which change the list
+	 * without adding anything to it.
+	 */
+	public void requestEffectListBroadcast() {
+		effectListBroadcastRequested = true;
 	}
 
 	/**

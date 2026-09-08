@@ -642,10 +642,10 @@ public class EffectController {
 		return true;
 	}
 
-	public void dispelBuffCounterAtkEffect(Effect effect) {
+	public void dispelBuffCounterAtkEffect(Effect effect, boolean broadcast) {
 		List<Effect> effectsToEnd = filterEffects(abnormalEffectMap, e -> effect.equals(e.getDesignatedDispelEffect()));
 		for (Effect ef : effectsToEnd) {
-			ef.endEffect();
+			ef.endEffect(broadcast);
 		}
 	}
 
