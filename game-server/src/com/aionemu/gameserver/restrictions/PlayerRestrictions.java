@@ -42,6 +42,7 @@ public class PlayerRestrictions {
 	private static boolean checkFly(Player player) {
 		if (player.isUsingFlightTransporterOrWindstream()) {
 			PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_SKILL_CANT_CAST(ActionState.PATH_FLYING.getL10n()));
+			AuditLogger.log(player, "tried to attack " + player.getTarget() + " while using " + player.getFlightPath().getType());
 			return false;
 		}
 		return true;
@@ -208,7 +209,10 @@ public class PlayerRestrictions {
 			return false;
 		}
 
-		if (!player.isSpawned() || target == null || !checkFly(player) || player.getLifeStats().isAboutToDie() || player.isDead())
+		if (!player.isSpawned() || player.getLifeStats().isAboutToDie() || player.isDead())
+			return false;
+
+		if (!checkFly(player))
 			return false;
 
 		if (target instanceof Player targetPlayer && targetPlayer.isUsingFlightTransporterOrWindstream())
@@ -220,14 +224,7 @@ public class PlayerRestrictions {
 			return false;
 		}
 
-		if (!(target instanceof Creature)) {
-			PacketSendUtility.sendPacket(player, SM_ATTACK_RESPONSE.STOP_INVALID_TARGET(player.getGameStats().getAttackCounter()));
-			return false;
-		}
-
-		Creature creature = (Creature) target;
-
-		if (creature.isDead() || creature.getLifeStats().isAboutToDie()) {
+		if (!(target instanceof Creature creature) || creature.isDead() || creature.getLifeStats().isAboutToDie()) {
 			PacketSendUtility.sendPacket(player, SM_ATTACK_RESPONSE.STOP_INVALID_TARGET(player.getGameStats().getAttackCounter()));
 			return false;
 		}
