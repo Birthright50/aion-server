@@ -140,10 +140,9 @@ public class StigmaService {
 			linkedStigmaSkills.clear();
 			for (PlayerSkillEntry skill : player.getSkillList().getAllSkills()) {
 				if (skill.isLinkedStigmaSkill()) {
-					SkillTemplate skillTemplate = DataManager.SKILL_DATA.getSkillTemplate(skill.getSkillId());
 					if (stack == null)
-						stack = skillTemplate.getStack();
-					if (skillTemplate.getStack().equalsIgnoreCase(stack))
+						stack = skill.getSkillTemplate().getStack();
+					if (skill.getSkillTemplate().getStack().equalsIgnoreCase(stack))
 						linkedStigmaSkills.add(skill);
 					if (stack.equalsIgnoreCase("NONE"))
 						break;
@@ -157,10 +156,10 @@ public class StigmaService {
 				PlayerSkillEntry skillEntry = linkedStigmaSkills.get(i);
 				SkillLearnService.removeSkill(player, skillEntry.getSkillId());
 				if (i == 0) {
-					firstSkillL10n = DataManager.SKILL_DATA.getSkillTemplate(skillEntry.getSkillId()).getL10n();
+					firstSkillL10n = skillEntry.getSkillTemplate().getL10n();
 					skillLevel = skillEntry.getSkillLevel();
 				} else if (i == 1)
-					secondSkillL10n = DataManager.SKILL_DATA.getSkillTemplate(skillEntry.getSkillId()).getL10n();
+					secondSkillL10n = skillEntry.getSkillTemplate().getL10n();
 			}
 			PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_DELETE_HIDDEN_SKILL(firstSkillL10n, skillLevel, secondSkillL10n));
 		}
