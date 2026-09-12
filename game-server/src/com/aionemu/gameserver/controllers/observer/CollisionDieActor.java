@@ -20,7 +20,7 @@ public class CollisionDieActor extends AbstractCollisionObserver {
 	private final FortressLocation fortressLocation;
 
 	public CollisionDieActor(Creature creature, Spatial geometry, FortressLocation fortressLocation) {
-		super(creature, geometry, CollisionIntention.MATERIAL.getId(), CheckType.PASS);
+		super(creature, geometry, CollisionIntention.MATERIAL.getId(), CheckType.PASS, ObserverType.DEATH);
 		this.fortressLocation = fortressLocation;
 	}
 

@@ -1,9 +1,10 @@
 package com.aionemu.gameserver.skillengine.task;
 
+import static com.aionemu.gameserver.controllers.observer.ObserverType.*;
+
 import com.aionemu.commons.utils.Rnd;
 import com.aionemu.gameserver.configs.main.CraftConfig;
 import com.aionemu.gameserver.controllers.observer.ActionObserver;
-import com.aionemu.gameserver.controllers.observer.ObserverType;
 import com.aionemu.gameserver.model.gameobjects.Creature;
 import com.aionemu.gameserver.model.gameobjects.Gatherable;
 import com.aionemu.gameserver.model.gameobjects.Item;
@@ -136,7 +137,7 @@ public class GatheringTask extends AbstractCraftTask {
 	}
 
 	private ActionObserver createGathererObserver() {
-		return new ActionObserver(ObserverType.GATHERING_CANCEL) {
+		return new ActionObserver(STARTSKILLCAST, ITEMUSE, ATTACK, ATTACKED, MOVE, DOT_ATTACKED, DEATH) {
 			@Override
 			public void startSkillCast(Skill skill) {
 				abort();
