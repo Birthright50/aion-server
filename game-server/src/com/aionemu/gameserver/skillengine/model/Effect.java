@@ -295,7 +295,8 @@ public class Effect implements StatOwner {
 		magicalCritical = false;
 		magicalCriticalRolled = true;
 		for (int i = 0; i < magicalCriticals.length; i++) {
-			magicalCriticals[i] = positions.contains(i);
+			int position = i + 1;
+			magicalCriticals[i] = positions.contains(position);
 			magicalCritical |= magicalCriticals[i];
 		}
 	}
